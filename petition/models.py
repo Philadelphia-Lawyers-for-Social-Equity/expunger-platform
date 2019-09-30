@@ -1,0 +1,147 @@
+# -*- coding: utf-8 -*-
+
+import dateparser
+import enum
+
+class Address:
+    def __init__(self, street1, city, state, zipcode, street2=None):
+        self.street1 = street1
+        self.street2 = street2
+        self.city = city
+        self.state = state
+        self.zipcode = zipcode
+
+    @staticmethod
+    def from_dict(data):
+        return Address(
+            data["street1"], data.get("street2", None), data["city"],
+            data["state"], data["zipcode"])
+
+    def __str__(self):
+        """Provide string representation"""
+
+        if self.street2 is None:
+            return "%s\n%s, %s %s" % (self.street1, self.city, self.state, self.zipcode)
+            
+        return "%s\n%s\n%s, %s %s" % (self.street1, self.street2, self.city, self.state, self.zipcode)
+
+
+class Petitioner:
+    """Someone who wants a record expunged"""
+    def __init__(self, name, aliases, dob, ssn, address):
+        self.name = name
+        self.aliases = aliases
+        self.dob = dob
+        self.ssn = ssn
+        self.address = address
+
+    @staticmethod
+    def from_dict(data):
+        return Petitioner(
+            data["name"], data.get("aliases", []),
+            dateparser.parse(data["dob"]),
+            data["ssn"], Address.from_dict(data["address"]))
+
+
+# Dockets
+
+class Court(enum.Enum):
+    CP = "Court of Common Pleas"
+    MC = "Municipal Court"
+
+
+class CaseType(enum.Enum):
+    CR = "Criminal Case"
+    SU = "Summary Offense"
+    MD = "Miscellaneous Docket"
+
+
+class DocketId:
+    """
+    Represent the ID for a Philadelphia County Court Docket
+    """
+    county_code = 51
+
+    def __init__(self, court, case_type, number, year):
+        """ Create a DocketId"""
+
+        if not isinstance(court, Court):
+            raise ValueError("Invalid Court")
+
+        if not isinstance(case_type, CaseType):
+            raise ValueError("Invalid CaseType")
+
+        self.court = court
+        self.case_type = case_type
+        self.number = number
+        self.year = year
+
+    def __str__(self):
+        """Provide string representation"""
+        return "%s-%d-%s-%07d-%d" % (
+            self.court.name, self.county_code, self.case_type.name, self.number,
+            self.year)
+
+    def __repr__(self):
+        return "DocketId(%s, %s, %d, %d)" % (
+            self.court, self.case_type, self.number, self.year)
+
+    def __eq__(self, other):
+
+        return isinstance(other, DocketId) \
+                and self.court == other.court \
+                and self.county_code == other.county_code \
+                and self.case_type == other.case_type \
+                and self.number == other.number \
+                and self.year == other.year
+
+    @staticmethod
+    def from_dict(self, data):
+        """
+        Produce a DocketId from it's representation in a dict.
+
+        Args:
+            data - a string representation as would appear in a dict,
+                   such as "MC-51-CR-2100001-2019"
+        Return:
+            A DocketId
+        """
+        parts = data.split("-")
+        court = Court[parts.pop(0)]
+        county = parts.pop(0)
+        case_type = CaseType[parts.pop(0)]
+        number = parts.pop(0)
+        year = parts.pop(0)
+
+        docket = DocketId(court, case_type, number, year)
+        docket.county_code = county
+        return docket
+
+
+class PetitionType(enum.Enum):
+    expungement = "Expungement"
+
+
+class Petition:
+    """The petition data"""
+    def __init__(self, date, petition_type, otn, dc, arrest_date,
+                 arrest_officer, disposition, judge):
+
+        if not isinstance(petition_type, PetitionType):
+            raise ValueError("Invalid PetitionType")
+
+        self.date = date
+        self.petition_type = petition_type
+        self.otn = otn
+        self.dc = dc
+        self.arrest_date = arrest_date
+        self.arrest_officer = arrest_officer
+        self.disposition = disposition
+        self.judge = judge
+
+
+class Restitution:
+    """Court ordered payments"""
+    def __init__(self, total, paid):
+        self.total = total
+        self.paid = paid
