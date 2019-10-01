@@ -3,6 +3,7 @@
 import dateparser
 import enum
 
+
 class Address:
     def __init__(self, street1, city, state, zipcode, street2=None):
         self.street1 = street1
@@ -21,9 +22,11 @@ class Address:
         """Provide string representation"""
 
         if self.street2 is None:
-            return "%s\n%s, %s %s" % (self.street1, self.city, self.state, self.zipcode)
-            
-        return "%s\n%s\n%s, %s %s" % (self.street1, self.street2, self.city, self.state, self.zipcode)
+            return "%s\n%s, %s %s" % (
+                self.street1, self.city, self.state, self.zipcode)
+
+        return "%s\n%s\n%s, %s %s" % (
+            self.street1, self.street2, self.city, self.state, self.zipcode)
 
 
 class Petitioner:
@@ -44,6 +47,7 @@ class Petitioner:
 
 
 # Dockets
+
 
 class Court(enum.Enum):
     CP = "Court of Common Pleas"
@@ -73,8 +77,8 @@ class DocketId:
 
         self.court = court
         self.case_type = case_type
-        self.number = number
-        self.year = year
+        self.number = int(number)
+        self.year = int(year)
 
     def __str__(self):
         """Provide string representation"""
@@ -96,7 +100,7 @@ class DocketId:
                 and self.year == other.year
 
     @staticmethod
-    def from_dict(self, data):
+    def from_dict(data):
         """
         Produce a DocketId from it's representation in a dict.
 
@@ -114,7 +118,7 @@ class DocketId:
         year = parts.pop(0)
 
         docket = DocketId(court, case_type, number, year)
-        docket.county_code = county
+        docket.county_code = int(county)
         return docket
 
 
@@ -139,9 +143,25 @@ class Petition:
         self.disposition = disposition
         self.judge = judge
 
+    @staticmethod
+    def from_dict(data):
+        """Produce a petition from it's dict representation"""
+        return Petition(
+            dateparser.parse(data["date"]),
+            PetitionType[data["petition_type"]],
+            data["otn"], data["dc"], dateparser.parse(data["arrest_date"]),
+            data["arrest_officer"], data["disposition"], data["judge"]
+        )
+
 
 class Restitution:
     """Court ordered payments"""
     def __init__(self, total, paid):
         self.total = total
         self.paid = paid
+
+    @staticmethod
+    def from_dict(data):
+        return Restitution(
+            data["total"],
+            data["paid"])
