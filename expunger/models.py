@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 
 
+
 class Address(models.Model):
     """Standard US Address"""
     street1 = models.CharField(max_length=128)

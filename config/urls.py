@@ -27,4 +27,5 @@ urlpatterns = [
          TokenRefreshView.as_view(), name='token_refresh'),
     path('admin/', admin.site.urls),
     path('account/', include('django.contrib.auth.urls')),
+    path('petition/', include('petition.urls'))
 ]
