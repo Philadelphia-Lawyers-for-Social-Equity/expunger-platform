@@ -13,7 +13,7 @@ def add_plse(apps, schema_editor):
                        phone="215-995-1230", address=address)
     org.save()
 
-    
+
 class Migration(migrations.Migration):
 
     dependencies = [

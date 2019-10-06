@@ -33,8 +33,8 @@ class DocketIdFactory(factory.Factory):
 
     court = factory.fuzzy.FuzzyChoice(Court)
     case_type = factory.fuzzy.FuzzyChoice(CaseType)
-    number = factory.fuzzy.FuzzyInteger(1,9999999)
-    year = factory.fuzzy.FuzzyInteger(1968,2019)
+    number = factory.fuzzy.FuzzyInteger(1, 9999999)
+    year = factory.fuzzy.FuzzyInteger(1968, 2019)
 
 
 class PetitionFactory(factory.Factory):

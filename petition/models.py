@@ -3,6 +3,7 @@
 import dateparser
 import enum
 
+
 class Address:
     def __init__(self, street1, city, state, zipcode, street2=None):
         self.street1 = street1
@@ -21,9 +22,11 @@ class Address:
         """Provide string representation"""
 
         if self.street2 is None:
-            return "%s\n%s, %s %s" % (self.street1, self.city, self.state, self.zipcode)
-            
-        return "%s\n%s\n%s, %s %s" % (self.street1, self.street2, self.city, self.state, self.zipcode)
+            return "%s\n%s, %s %s" % (
+                self.street1, self.city, self.state, self.zipcode)
+
+        return "%s\n%s\n%s, %s %s" % (
+            self.street1, self.street2, self.city, self.state, self.zipcode)
 
 
 class Petitioner:
@@ -79,8 +82,8 @@ class DocketId:
     def __str__(self):
         """Provide string representation"""
         return "%s-%d-%s-%07d-%d" % (
-            self.court.name, self.county_code, self.case_type.name, self.number,
-            self.year)
+            self.court.name, self.county_code, self.case_type.name,
+            self.number, self.year)
 
     def __repr__(self):
         return "DocketId(%s, %s, %d, %d)" % (

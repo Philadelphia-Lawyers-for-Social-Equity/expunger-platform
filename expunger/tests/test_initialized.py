@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import os 
+import os
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+
 
 class TestSuperUserExists(TestCase):
     """

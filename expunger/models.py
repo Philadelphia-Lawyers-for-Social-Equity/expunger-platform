@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-# Django models that are kept in the database
 
 class Address(models.Model):
     """Standard US Address"""
@@ -24,6 +23,7 @@ class Address(models.Model):
 
         return "%s\n%s, %s %s" % (
             self.street1, self.city, self.state, self.zipcode)
+
 
 class Organization(models.Model):
     name = models.CharField(max_length=128)
@@ -49,6 +49,7 @@ class Attorney(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.user.first_name, self.user.last_name)
+
 
 class ExpungerProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
