@@ -5,7 +5,7 @@
 <h2>Login</h2>
 <form method="post">
   {% csrf_token %}
-    <input type="hidden" name="next" value="{% url petition %}">
+    <input type="hidden" name="next" value="{% url "petition:petitioner_form" %}">
   {{ form.as_p }}
   <button type="submit">Login</button>
 </form>

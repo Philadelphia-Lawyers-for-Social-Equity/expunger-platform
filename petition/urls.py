@@ -3,6 +3,7 @@
 from django.urls import path
 from . import views
 
+app_name = "petition"
 
 urlpatterns = [
     path("", views.PetitionerFormView.as_view(), name="petitioner_form"),

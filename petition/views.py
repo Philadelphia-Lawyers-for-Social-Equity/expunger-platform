@@ -39,7 +39,7 @@ class PetitionFormView(LoginRequiredMixin, View):
     template_name = "petition/petition_form.html"
 
     def get(self, request, *args, **kwargs):
-        return redirect('petitioner_form')
+        return redirect('petition:petitioner_form')
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)

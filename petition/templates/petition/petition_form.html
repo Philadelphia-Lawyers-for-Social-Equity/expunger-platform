@@ -2,7 +2,7 @@
 {% block title %}Petition Info{% endblock %}
 
 {% block content %}
-<form method="POST" action="{% url 'petition_form' %}">
+<form method="POST" action="{% url 'petition:petition_form' %}">
 {% csrf_token %}
 {{ form.name.as_hidden }}{{ form.aliases.as_hidden }}{{ form.dob.as_hidden }}
 {{ form.street1.as_hidden }}{{ form.street2.as_hidden}}
