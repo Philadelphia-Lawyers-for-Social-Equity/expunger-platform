@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=128)),
-                ('phone', models.CharField(max_length=13)),
+                ('phone', models.CharField(max_length=32)),
                 ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='expunger.Address')),
             ],
         ),

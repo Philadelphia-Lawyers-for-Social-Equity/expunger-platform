@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from django.conf import settings
 
@@ -28,7 +30,7 @@ class Address(models.Model):
 class Organization(models.Model):
     name = models.CharField(max_length=128)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=13)
+    phone = models.CharField(max_length=32)
 
     def __repr__(self):
         return "Organization(name=%s, address=%s, phone=%s" % (
