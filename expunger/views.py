@@ -43,3 +43,27 @@ class OrganizationView(APIView):
             org, context={"request": request})
 
         return Response(serializer.data)
+
+
+class AttorneysView(APIView):
+    """List view for Attorneys"""
+
+    def get(self, request, *args, **kwargs):
+        """Produce details for an attorney"""
+        attorneys = models.Attorney.objects.all()
+        serializer = serializers.AttorneySerializer(
+            attorneys, context={"request": request}, many=True)
+
+        return Response(serializer.data)
+
+
+class AttorneyView(APIView):
+    """View of an individual attorney"""
+
+    def get(self, request, pk, *args, **kwargs):
+        """Produce details for an attorney"""
+        attorney = get_object_or_404(models.Attorney, pk=pk)
+        serializer = serializers.AttorneySerializer(
+            attorney, context={"request": request})
+
+        return Response(serializer.data)

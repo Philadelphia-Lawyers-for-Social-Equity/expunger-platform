@@ -16,3 +16,15 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {"url": {"view_name": "expunger:organization-detail"}}
 
     address = AddressSerializer()
+
+
+class AttorneySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Attorney
+        fields = ["url", "pk", "bar", "name"]
+        extra_kwargs = {"url": {"view_name": "expunger:attorney-detail"}}
+
+    name = serializers.SerializerMethodField("attorney_name")
+
+    def attorney_name(self, attorney):
+        return "%s %s" % (attorney.user.first_name, attorney.user.last_name)

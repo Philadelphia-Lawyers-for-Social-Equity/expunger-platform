@@ -27,7 +27,7 @@ class TestRest(Authenticated, TestCase):
     """Test the JSON API"""
 
     def test_read_organization(self):
-        """ """
+        """API shows a single organization"""
         org = factories.OrganizationFactory()
         org.refresh_from_db()
         url = reverse("expunger:organization-detail", kwargs={"pk": org.pk})
@@ -40,3 +40,15 @@ class TestRest(Authenticated, TestCase):
         self.assertEqual(jsr["address"]["city"], org.address.city)
         self.assertEqual(jsr["address"]["state"], org.address.state)
         self.assertEqual(jsr["address"]["zipcode"], org.address.zipcode)
+
+    def test_read_attorney(self):
+        """API shows a single attortey"""
+        attorney = factories.AttorneyFactory()
+        attorney.refresh_from_db()
+        url = reverse("expunger:attorney-detail", kwargs={"pk": attorney.pk})
+        res = self.authenticated_client.get(url)
+        jsr = res.json()
+
+        self.assertEqual(jsr["name"], "%s %s" % (
+            attorney.user.first_name, attorney.user.last_name))
+        self.assertEqual(jsr["bar"], attorney.bar)
