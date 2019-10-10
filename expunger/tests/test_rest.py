@@ -20,6 +20,8 @@ class Authenticated:
         success = client.login(username=profile.user.username, password=pw)
         if not success:
             raise RuntimeError("Failed to produce authenticated client")
+
+        cls.authenticated_profile = profile
         cls.authenticated_client = client
 
 
@@ -52,3 +54,23 @@ class TestRest(Authenticated, TestCase):
         self.assertEqual(jsr["name"], "%s %s" % (
             attorney.user.first_name, attorney.user.last_name))
         self.assertEqual(jsr["bar"], attorney.bar)
+
+    def test_my_profile(self):
+        """API allows user to review their own profile"""
+        url = reverse("expunger:profile")
+        res = self.authenticated_client.get(url)
+        jsr = res.json()
+
+        self.assertEqual(jsr["user"]["first_name"],
+                         self.authenticated_profile.user.first_name)
+        self.assertEqual(jsr["user"]["last_name"],
+                         self.authenticated_profile.user.last_name)
+        self.assertEqual(jsr["user"]["username"],
+                         self.authenticated_profile.user.username)
+        self.assertEqual(jsr["user"]["email"],
+                         self.authenticated_profile.user.email)
+
+        self.assertEqual(jsr["attorney"]["pk"],
+                         self.authenticated_profile.attorney.pk)
+        self.assertEqual(jsr["organization"]["pk"],
+                         self.authenticated_profile.organization.pk)

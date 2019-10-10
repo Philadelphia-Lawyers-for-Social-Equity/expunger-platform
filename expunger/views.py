@@ -67,3 +67,18 @@ class AttorneyView(APIView):
             attorney, context={"request": request})
 
         return Response(serializer.data)
+
+
+class ProfileView(APIView):
+    """Allow user to view, update its profile"""
+
+    def get(self, request, *args, **kwargs):
+        """Produce users profile data"""
+        profile = getattr(request.user, "expungerprofile", None)
+
+        if profile is None:
+            return Response({"error": "User has no profile"}, status=404)
+
+        serializer = serializers.ExpungerProfileSerializer(
+            profile, context={"request": request})
+        return Response(serializer.data)

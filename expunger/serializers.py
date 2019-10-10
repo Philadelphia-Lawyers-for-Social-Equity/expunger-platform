@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from . import models
 
@@ -28,3 +29,19 @@ class AttorneySerializer(serializers.HyperlinkedModelSerializer):
 
     def attorney_name(self, attorney):
         return "%s %s" % (attorney.user.first_name, attorney.user.last_name)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ["first_name", "last_name", "email", "username"]
+
+
+class ExpungerProfileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ExpungerProfile
+        fields = ["attorney", "organization", "user"]
+
+    attorney = AttorneySerializer()
+    organization = OrganizationSerializer()
+    user = UserSerializer()
