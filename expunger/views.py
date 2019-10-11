@@ -113,3 +113,39 @@ class MyProfileView(APIView):
             profile, context={"request": request})
 
         return Response(serializer.data, status=201)
+
+    def put(self, request, *args, **kwargs):
+        """Allow the user to update their profile"""
+        profile = getattr(request.user, "expungerprofile", None)
+
+        if profile is None:
+            return Response(
+                {"detail": "User has no profile, use POST to create"},
+                status=404)
+
+        attorney_id = request.data.get("attorney", None)
+
+        if attorney_id is not None:
+            try:
+                attorney = models.Attorney.objects.get(pk=attorney_id)
+            except models.Attorney.DoesNotExist:
+                return Response({"detail": "No such attorney"}, status=403)
+
+            profile.attorney = attorney
+
+        organization_id = request.data.get("organization", None)
+
+        if organization_id is not None:
+            try:
+                organization = models.Organization.objects.get(pk=organization_id)
+            except models.Organization.DoesNotExist:
+                return Response({"detail": "No such organization"}, status=403)
+
+            profile.organization = organization
+
+        profile.save()
+
+        serializer = serializers.ExpungerProfileSerializer(
+            profile, context={"request": request})
+
+        return Response(serializer.data, status=200)

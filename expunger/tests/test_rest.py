@@ -103,3 +103,33 @@ class TestRest(Authenticated, TestCase):
 
         self.assertEqual(user.expungerprofile.attorney.pk, attorney.pk)
         self.assertEqual(user.expungerprofile.organization.pk, organization.pk)
+
+    def test_update_my_profile(self):
+        """API allows user to update their profile"""
+        url = reverse("expunger:my-profile")
+        new_attorney = factories.AttorneyFactory()
+        new_org = factories.OrganizationFactory()
+
+        self.assertNotEqual(new_attorney, self.authenticated_profile.attorney)
+        self.assertNotEqual(new_org, self.authenticated_profile.organization)
+
+        res = self.authenticated_client.put(
+            url, {"attorney": new_attorney.pk}, content_type="application/json")
+        jsr = res.json()
+
+        self.authenticated_profile.refresh_from_db()
+
+        self.assertEqual(res.status_code, 200, msg=jsr)
+        self.assertEqual(jsr["attorney"]["pk"], new_attorney.pk, msg=jsr)
+        self.assertEqual(self.authenticated_profile.attorney, new_attorney)
+
+        res = self.authenticated_client.put(
+            url, {"organization": new_org.pk}, content_type="application/json")
+        jsr = res.json()
+
+        self.authenticated_profile.refresh_from_db()
+
+        self.assertEqual(res.status_code, 200, msg=jsr)
+        self.assertEqual(jsr["organization"]["pk"], new_org.pk)
+        self.assertEqual(self.authenticated_profile.organization,
+                         new_org)
