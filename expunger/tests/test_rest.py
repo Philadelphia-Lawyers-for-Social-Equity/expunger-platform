@@ -8,19 +8,30 @@ from expunger import factories
 class Authenticated:
     """Provide an authenticated client for Tests"""
 
-    @classmethod
-    def setUpClass(cls, *args, **kwargs):
-        super().setUpClass(*args, **kwargs)
+    @staticmethod
+    def logged_in_client(user=None):
         pw = factories.random_text(8)
-        profile = factories.ExpungerProfileFactory()
-        profile.user.set_password(pw)
-        profile.user.save()
+
+        if user is None:
+            user = factories.UserFactory()
+
+        user.set_password(pw)
+        user.save()
 
         client = Client()
-        success = client.login(username=profile.user.username, password=pw)
+        success = client.login(username=user.username, password=pw)
+
         if not success:
             raise RuntimeError("Failed to produce authenticated client")
 
+        return client
+
+    @classmethod
+    def setUpClass(cls, *args, **kwargs):
+        super().setUpClass(*args, **kwargs)
+
+        profile = factories.ExpungerProfileFactory()
+        client = cls.logged_in_client(profile.user)
         cls.authenticated_profile = profile
         cls.authenticated_client = client
 
@@ -31,7 +42,6 @@ class TestRest(Authenticated, TestCase):
     def test_read_organization(self):
         """API shows a single organization"""
         org = factories.OrganizationFactory()
-        org.refresh_from_db()
         url = reverse("expunger:organization-detail", kwargs={"pk": org.pk})
         res = self.authenticated_client.get(url)
         jsr = res.json()
@@ -46,7 +56,6 @@ class TestRest(Authenticated, TestCase):
     def test_read_attorney(self):
         """API shows a single attortey"""
         attorney = factories.AttorneyFactory()
-        attorney.refresh_from_db()
         url = reverse("expunger:attorney-detail", kwargs={"pk": attorney.pk})
         res = self.authenticated_client.get(url)
         jsr = res.json()
@@ -57,7 +66,7 @@ class TestRest(Authenticated, TestCase):
 
     def test_my_profile(self):
         """API allows user to review their own profile"""
-        url = reverse("expunger:profile")
+        url = reverse("expunger:my-profile")
         res = self.authenticated_client.get(url)
         jsr = res.json()
 
@@ -74,3 +83,23 @@ class TestRest(Authenticated, TestCase):
                          self.authenticated_profile.attorney.pk)
         self.assertEqual(jsr["organization"]["pk"],
                          self.authenticated_profile.organization.pk)
+
+    def test_create_my_profile(self):
+        """API allows user to create a profile, if needed"""
+        url = reverse("expunger:my-profile")
+        user = factories.UserFactory()
+        client = self.logged_in_client(user)
+
+        organization = factories.OrganizationFactory()
+        attorney = factories.AttorneyFactory()
+
+        res = client.post(
+            url, {"attorney": attorney.pk, "organization": organization.pk})
+        jsr = res.json()
+        self.assertEqual(res.status_code, 201)
+
+        self.assertEqual(jsr["attorney"]["pk"], attorney.pk)
+        self.assertEqual(jsr["organization"]["pk"], organization.pk)
+
+        self.assertEqual(user.expungerprofile.attorney.pk, attorney.pk)
+        self.assertEqual(user.expungerprofile.organization.pk, organization.pk)

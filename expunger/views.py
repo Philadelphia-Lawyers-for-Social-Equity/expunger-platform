@@ -69,7 +69,7 @@ class AttorneyView(APIView):
         return Response(serializer.data)
 
 
-class ProfileView(APIView):
+class MyProfileView(APIView):
     """Allow user to view, update its profile"""
 
     def get(self, request, *args, **kwargs):
@@ -77,8 +77,39 @@ class ProfileView(APIView):
         profile = getattr(request.user, "expungerprofile", None)
 
         if profile is None:
-            return Response({"error": "User has no profile"}, status=404)
+            return Response({"detail": "User has no profile"}, status=404)
 
         serializer = serializers.ExpungerProfileSerializer(
             profile, context={"request": request})
         return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        """Allow user to create a new profile"""
+        profile = getattr(request.user, "expungerprofile", None)
+
+        if profile is not None:
+            return Response(
+                {"detail": "User profile already exists, use PUT to update"},
+                status=409)
+
+        try:
+            attorney = models.Attorney.objects.get(
+                pk=request.data["attorney"])
+        except models.Attorney.DoesNotExist:
+            return Response(
+                {"detail": "No such attorney"}, status=403)
+
+        try:
+            organization = models.Organization.objects.get(
+                pk=request.data["organization"])
+        except models.Organization.DoesNotExist:
+            return Response(
+                {"detail": "No such organization"}, status=403)
+
+        profile = models.ExpungerProfile(user=request.user, attorney=attorney,
+                                         organization=organization)
+        profile.save()
+        serializer = serializers.ExpungerProfileSerializer(
+            profile, context={"request": request})
+
+        return Response(serializer.data, status=201)

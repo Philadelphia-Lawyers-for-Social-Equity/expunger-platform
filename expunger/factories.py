@@ -63,7 +63,7 @@ class AttorneyFactory(factory.django.DjangoModelFactory):
         model = models.Attorney
 
     user = factory.SubFactory(UserFactory)
-    bar = factory.LazyAttribute(lambda o: random.randint(100000, 999999))
+    bar = factory.LazyAttribute(lambda o: str(random.randint(100000, 999999)))
 
 
 class ExpungerProfileFactory(factory.django.DjangoModelFactory):
