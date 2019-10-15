@@ -1,4 +1,3 @@
-import io
 import os
 import jinja2
 from docxtpl import DocxTemplate
@@ -7,6 +6,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+from rest_framework.views import APIView
 
 from . import forms
 from . import models
@@ -54,8 +54,8 @@ class PetitionFormView(LoginRequiredMixin, View):
                 "docket": form.get_docket_id(),
                 "restitution": form.get_restitution(),
             }
-            docx = os.path.join(BASE_DIR, "petition", "templates",
-                "petition", "petition.docx")
+            docx = os.path.join(
+                BASE_DIR, "petition", "templates", "petition", "petition.docx")
             document = DocxTemplate(docx)
 
             jinja_env = jinja2.Environment()
@@ -67,5 +67,38 @@ class PetitionFormView(LoginRequiredMixin, View):
             document.save(response)
 
             return response
-    
+
         return render(request, PetitionFormView.template_name, {"form": form})
+
+
+class PetitionAPIView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        profile = request.user.expungerprofile
+
+        context = {
+            "organization": profile.organization,
+            "attorney": profile.attorney,
+            "petitioner":
+                models.Petitioner.from_dict(request.data["petitioner"]),
+            "petition":
+                models.Petition.from_dict(request.data["petition"]),
+            "docket":
+                models.DocketId.from_dict(request.data["docket"]),
+            "restitution":
+                models.Restitution.from_dict(request.data["restitution"])
+        }
+
+        docx = os.path.join(
+            BASE_DIR, "petition", "templates", "petition", "petition.docx")
+        document = DocxTemplate(docx)
+
+        jinja_env = jinja2.Environment()
+        jinja_env.filters['comma_join'] = lambda v: ",".join(v)
+
+        document.render(context, jinja_env)
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        response['Content-Disposition'] = 'attachment; filename="petition.docx"'
+        document.save(response)
+
+        return response

@@ -29,5 +29,6 @@ urlpatterns = [
     path('account/', include('django.contrib.auth.urls')),
     path('api/v0.1.0/expunger/', include('expunger.urls',
          namespace='expunger')),
-    path('petition/', include('petition.urls'))
+    path('api/v0.1.0/petition/', include('petition.urls',
+         namespace='petition'))
 ]
