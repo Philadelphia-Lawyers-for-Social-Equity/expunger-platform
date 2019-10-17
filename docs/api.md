@@ -64,3 +64,33 @@ are:
     - PUT allows updating an existing profile
         - accepts `{"attorney": attorney pk, "organization": organization pk}`
         - attorney and organization are optional
+
+- **api/v0.1.0/petition/generate/**
+    - Requiren access token header
+    - POST with valid data produces a microsoft .docx petition
+    - Expects JSON of
+        - petitioner
+            - name: string, full name
+            - aliases: list of strings, aliases of the petitioner
+            - dob: petitioners date of birth, iso formatted, such as
+                   "2019-10-17"
+            - ssn: string, petitioner's social security number
+            - address:
+                - street1: string
+                - street2: string or null
+                - city: string
+                - state: string, two character state abbreviation
+                - zipcode: string formatted zip code
+        - petition
+            - date: iso formatted date, such as "2019-10-17"
+            - petition_type: string, currently "expungement"
+            - otn: string
+            - dc: string
+            - arrest_date: iso formatted date, such as "2019-10-17"
+            - arrest_officer: string, arresting officer's full name
+            - disposition: string
+            - judge: string, full name of the judge
+        - docket: String of a docket id, such as "MC-51-CR-1234567-1995"
+        - restitution:
+            - total: decimal number
+            - paid: decimal number
