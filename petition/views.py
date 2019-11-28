@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from . import forms
 from . import models
 
-BASE_DIR = os.path.dirname(os.path.abspath(__name__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class PetitionerFormView(LoginRequiredMixin, View):
