@@ -13,19 +13,22 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("EXPUNGER_KEY", "r)8onjytmacf5=or(te@a4q!reu*x19js#m59$f)tgf^mx)-gx")
+SECRET_KEY = os.environ.get("EXPUNGER_KEY")
+
+if SECRET_KEY is None or SECRET_KEY.strip() == "":
+    raise ValueError("EXPUNGER_KEY environment variable must be set!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
