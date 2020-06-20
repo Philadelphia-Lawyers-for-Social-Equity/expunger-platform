@@ -15,14 +15,14 @@ class Address:
     @staticmethod
     def from_dict(data):
         return Address(
-            data["street1"], data.get("street2", None), data["city"],
-            data["state"], data["zipcode"])
+            data["street1"], data["city"], data["state"], data["zipcode"],
+            street2=data.get("street2", None))
 
     def __str__(self):
         """Provide string representation"""
 
-        if self.street2 is None:
-            return "%s\n%s, %s %s" % (
+        if self.street2 is None or self.street2.strip() == "":
+            return "%s\n %s, %s %s" % (
                 self.street1, self.city, self.state, self.zipcode)
 
         return "%s\n%s\n%s, %s %s" % (
