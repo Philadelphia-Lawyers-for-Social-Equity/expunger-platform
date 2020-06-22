@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from . import forms
 from . import models
@@ -16,6 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 logger = logging.getLogger("django")
 logger.info("LogLevel is: %s" % logger.level)
 logger.info("DJANGO_LOG_LEVEL: %s" % os.environ.get("DJANGO_LOG_LEVEL"))
+
 
 class PetitionerFormView(LoginRequiredMixin, View):
     form_class = forms.PetitionerForm
@@ -28,8 +30,8 @@ class PetitionerFormView(LoginRequiredMixin, View):
                       {"form": form})
 
     def post(self, request, *args, **kwargs):
-        logger.debug("petitioner form: %s" % form)
         form = self.form_class(request.POST)
+        logger.debug("petitioner form: %s" % form)
 
         if form.is_valid():
             next_form = forms.PetitionForm(initial=form.cleaned_data)
@@ -119,5 +121,16 @@ class PetitionAPIView(APIView):
         response['Content-Disposition'] = 'attachment; filename="petition.docx"'
         document.save(response)
 
-        logger.debug("PetitionAPIView post")
         return response
+
+
+class DocketParserAPIView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        logger.debug("DocketParserAPIView post")
+
+        profile = request.user.expungerprofile
+        df = request.FILES["docket_file"]
+
+        content = {"got": df}
+        return Response(content)

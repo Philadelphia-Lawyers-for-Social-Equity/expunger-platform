@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.test import Client, TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 from django.urls import reverse
 
 from expunger.tests.test_rest import Authenticated
@@ -49,4 +50,11 @@ class TestRest(Authenticated, TestCase):
 
         url = reverse("petition:generate")
         res = self.authenticated_client.post(url, data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+
+    def test_post_docket(self):
+        """Possible to post a docket file."""
+        url = reverse("petition:parse-docket")
+        f = SimpleUploadedFile("MC-51-CR-0000076-2019.pdf", b"content")
+        res = self.authenticated_client.post(url, {"docket_file": f})
         self.assertEqual(res.status_code, 200)

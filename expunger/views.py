@@ -8,6 +8,7 @@ from . import serializers
 
 logger = logging.getLogger("django")
 
+
 class AddressView(APIView):
     """
     View to show an individual address via the JSON API
