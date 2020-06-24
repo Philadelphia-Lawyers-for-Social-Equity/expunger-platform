@@ -66,7 +66,7 @@ are:
         - attorney and organization are optional
 
 - **api/v0.1.0/petition/generate/**
-    - Requiren access token header
+    - Requires access token header
     - POST with valid data produces a microsoft .docx petition
     - Expects JSON of
         - petitioner
@@ -94,3 +94,29 @@ are:
         - restitution:
             - total: decimal number
             - paid: decimal number
+
+- **api/v0.2.0/petition/parse_docket/**
+    - Requires access token header
+    - POST of docket file produces JSON of (any field may be missing on parse
+      failure):
+        - petitioner
+                - name: string, full name
+                - aliases: list of strings, aliases of petitioner
+                - dob: petitioners date of birth, iso formatted, such as
+                       "2019-10-17"
+        - petition
+                - otn: string
+                - arrest_date: iso formatted date, such as "2019-10-17"
+                - arrest_officer: string, arresting officer's full name
+                - judge: string, full name of the judge
+        - docket: String of a docket id, such as "MC-51-CR-1234567-1995"
+    - charges (list of):
+        - statute: string
+        - description: string
+        - grade: string (usually 2-3 chars)
+        - date: date, formatted such as “2020-10-11”
+        - disposition: string
+
+        - restitution:
+                - total: decimal number
+                - paid: decimal number

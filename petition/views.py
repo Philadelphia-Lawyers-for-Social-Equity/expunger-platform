@@ -10,6 +10,8 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+import docket_parser
+
 from . import forms
 from . import models
 
@@ -131,6 +133,14 @@ class DocketParserAPIView(APIView):
 
         profile = request.user.expungerprofile
         df = request.FILES["docket_file"]
+        parsed = docket_parser.parse_pdf(df)
+        content = {
+            "petitioner": {}
+        }
 
-        content = {"got": df}
+        if "section_docket" in parsed:
+            content["docket"] = parsed["section_docket"].get("docket", None)
+            content["petitioner"]["name"] = parsed["section_docket"].get("defendant", None)
+
+        logger.info("Parsed: %s", content)
         return Response(content)

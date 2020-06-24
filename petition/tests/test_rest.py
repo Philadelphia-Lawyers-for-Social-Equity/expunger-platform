@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from pathlib import Path
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -55,6 +58,74 @@ class TestRest(Authenticated, TestCase):
     def test_post_docket(self):
         """Possible to post a docket file."""
         url = reverse("petition:parse-docket")
-        f = SimpleUploadedFile("MC-51-CR-0000076-2019.pdf", b"content")
-        res = self.authenticated_client.post(url, {"docket_file": f})
+
+        pdf2 = Path(__file__).parent / "data" / "test-02.pdf"
+
+        with pdf2.open("rb") as f:
+            res = self.authenticated_client.post(url, {"docket_file": f})
+
         self.assertEqual(res.status_code, 200)
+        jsr = res.json()
+
+        self.assertEqual(
+            jsr["petitioner"],
+            {
+                "name": "Michael Jackson",
+                "aliases": None,
+                "dob": "1966-03-17"
+            }
+        )
+
+        self.assertEqual(
+            jsr["petition"],
+            {
+                "otn": "M 212189-5",
+                "arrest_date": "1984-12-23",
+                "arrest_officer": "Affiant",
+                "judge": "O'Keefe, Joseph D.",
+            }
+        )
+
+        self.assertEqual(jsr["docket"], "CP-51-CR-0201031-1985")
+
+        self.assertEqual(
+            jsr["charges"],
+            [
+                {
+                    "description": "THEFT BY UNLAWFUL TAKING OR DISPOSITION",
+                    "statute": "18 § 3921",
+                    "date": "1985-04-29",
+                    "grade": None,
+                    "disposition": "Nolle Prossed"
+                },
+                {
+                    "description": "THEFT BY RECEIVING STOLEN PROPERTY",
+                    "statute": "18 § 3925",
+                    "date": "1985-04-29",
+                    "grade": None,
+                    "disposition": "Nolle Prossed"
+                },
+                {
+                    "description": "CRIMINAL CONSPIRACY",
+                    "statute": "18 § 903",
+                    "date": "1985-04-29",
+                    "grade": None,
+                    "disposition": "Nolle Prossed"
+                },
+                {
+                    "description": "SIMPLE ASSAULT",
+                    "statute": "18 § 2701",
+                    "date": "1985-04-29",
+                    "grade": "M2",
+                    "disposition": "Guilty Plea"
+                },
+                {
+                    "description": "ROBBERY",
+                    "statute": "18 § 3701",
+                    "date": "1985-04-29",
+                    "grade": None,
+                    "disposition": "Nolle Prossed"
+                }
+            ]
+        )
+        self.assertEqual(jsr["restitution"], {"total": None, "paid": None})
