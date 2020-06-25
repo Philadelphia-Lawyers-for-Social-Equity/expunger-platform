@@ -133,14 +133,78 @@ class DocketParserAPIView(APIView):
 
         profile = request.user.expungerprofile
         df = request.FILES["docket_file"]
-        parsed = docket_parser.parse_pdf(df)
+
+        try:
+            parsed = docket_parser.parse_pdf(df)
+        except Exception as err:
+            return Response({"error": "parse error %s" % str(err)})
+
         content = {
-            "petitioner": {}
+            "petitioner": {},
+            "petition": {},
+            "docket": None,
+            "charges": []
         }
 
         if "section_docket" in parsed:
             content["docket"] = parsed["section_docket"].get("docket", None)
             content["petitioner"]["name"] = parsed["section_docket"].get("defendant", None)
 
+        if "section_defendant_information" in parsed:
+            content["petitioner"]["aliases"] = \
+                parsed["section_defendant_information"].get("aliases")
+
+            dob = parsed["section_defendant_information"].get("dob", None)
+
+            if dob is not None:
+                content["petitioner"]["dob"] = dob.isoformat()
+
+        if "section_case_information" in parsed:
+            content["petition"] = case_information_to_petition(
+                parsed["section_case_information"])
+
+        if "section_disposition" in parsed:
+            for disp in parsed["section_disposition"]:
+                content["charges"].append(disposition_to_charge(disp))
+
         logger.info("Parsed: %s", content)
         return Response(content)
+
+
+# Helpers
+
+def case_information_to_petition(case_info):
+    """Convert the case information to the petition portion of the api."""
+    arrest_date = case_info.get("arrest_date", None)
+
+    if arrest_date is not None:
+        arrest_date = arrest_date.iso_format()
+
+    return { "otn": case_info.get("otn"),
+             "arrest_officer": case_info.get("arrest_officer"),
+             "arrest_agency": case_info.get("arrest_agency"),
+             "judge": case_info.get("judge")
+           }
+
+
+def disposition_to_charge(disp):
+    """
+    Convert a parsed dispositions to a dict of a charge.
+
+    Arg:
+        A single disposition dict, as delivered by the parser
+    Return:
+        A charge dict, per the api doc
+    """
+    charge_date = disp.get("date", None)
+
+    if charge_date is not None:
+        charge_date = charge_date.isoformat()
+
+    return {
+        "statute": disp.get("statute", None),
+        "description": disp.get("charge_description", None),
+        "grade": disp.get("grade", None),
+        "date": charge_date,
+        "disposition": disp.get("offense_disposition", None)
+    }

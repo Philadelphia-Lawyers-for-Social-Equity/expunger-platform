@@ -108,6 +108,7 @@ are:
                 - otn: string
                 - arrest_date: iso formatted date, such as "2019-10-17"
                 - arrest_officer: string, arresting officer's full name
+                - arrest_agency: string, arresting agency
                 - judge: string, full name of the judge
         - docket: String of a docket id, such as "MC-51-CR-1234567-1995"
     - charges (list of):
