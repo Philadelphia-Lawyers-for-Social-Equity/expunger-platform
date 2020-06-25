@@ -7,6 +7,9 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+
+from django.utils.datastructures import MultiValueDictKeyError
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -132,12 +135,20 @@ class DocketParserAPIView(APIView):
         logger.debug("DocketParserAPIView post")
 
         profile = request.user.expungerprofile
-        df = request.FILES["docket_file"]
+
+        try:
+            df = request.FILES["docket_file"]
+        except MultiValueDictKeyError as err:
+            msg = "No docket_file, got %s" % request.FILES.keys()
+            logger.warn(msg)
+            return Response({"error": msg})
 
         try:
             parsed = docket_parser.parse_pdf(df)
         except Exception as err:
-            return Response({"error": "parse error %s" % str(err)})
+            msg = "Parse error %s" % str(err)
+            logger.warn(msg)
+            return Response({"error": msg})
 
         content = {
             "petitioner": {},
