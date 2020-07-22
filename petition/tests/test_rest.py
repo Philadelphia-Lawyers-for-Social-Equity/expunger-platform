@@ -39,9 +39,9 @@ class TestRest(Authenticated, TestCase):
                 "petition_type": petition.petition_type.name,
                 "otn": petition.otn,
                 "dc": petition.dc,
+                "arrest_agency": petition.arrest_agency,
                 "arrest_date": petition.arrest_date.isoformat(),
                 "arrest_officer": petition.arrest_officer,
-                "disposition": petition.disposition,
                 "judge": petition.judge,
             },
             "docket": str(docket),
@@ -79,10 +79,11 @@ class TestRest(Authenticated, TestCase):
         self.assertEqual(
             jsr["petition"],
             {
-                "otn": "M 212189-5",
+                "arrest_agency": "Philadelphia Pd",
                 "arrest_date": "1984-12-23",
                 "arrest_officer": "Affiant",
                 "judge": "O'Keefe, Joseph D.",
+                "otn": "M 212189-5",
             }
         )
 

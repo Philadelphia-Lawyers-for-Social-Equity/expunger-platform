@@ -99,18 +99,25 @@ class PetitionAPIView(APIView):
         logger.debug(
             "Profile %s found attorney %s" % (profile, profile.attorney))
 
-        context = {
-            "organization": profile.organization,
-            "attorney": profile.attorney,
-            "petitioner":
-                models.Petitioner.from_dict(request.data["petitioner"]),
-            "petition":
-                models.Petition.from_dict(request.data["petition"]),
-            "docket":
-                models.DocketId.from_dict(request.data["docket"]),
-            "restitution":
-                models.Restitution.from_dict(request.data["restitution"])
-        }
+        try:
+            context = {
+                "organization": profile.organization,
+                "attorney": profile.attorney,
+                "petitioner":
+                    models.Petitioner.from_dict(request.data["petitioner"]),
+                "petition":
+                    models.Petition.from_dict(request.data["petition"]),
+                "docket":
+                    models.DocketId.from_dict(request.data["docket"]),
+                "restitution":
+                    models.Restitution.from_dict(request.data["restitution"])
+            }
+        except KeyError as err:
+            msg = "Missing field: %s" % str(err)
+            logger.warn(msg)
+            return Response({"error": msg})
+
+        logger.debug("Petition POSTed with context: %s" % context)
 
         docx = os.path.join(
             BASE_DIR, "petition", "templates", "petition", "petition.docx")
@@ -174,6 +181,14 @@ class DocketParserAPIView(APIView):
             content["petition"] = case_information_to_petition(
                 parsed["section_case_information"])
 
+        if "section_status_information" in parsed:
+            arrest_date = parsed["section_status_information"].get(
+                "arrest_date", None)
+
+            if arrest_date is not None:
+                arrest_date = arrest_date.isoformat()
+                content["petition"]["arrest_date"] = arrest_date
+
         if "section_disposition" in parsed:
             for disp in parsed["section_disposition"]:
                 content["charges"].append(disposition_to_charge(disp))
@@ -186,10 +201,6 @@ class DocketParserAPIView(APIView):
 
 def case_information_to_petition(case_info):
     """Convert the case information to the petition portion of the api."""
-    arrest_date = case_info.get("arrest_date", None)
-
-    if arrest_date is not None:
-        arrest_date = arrest_date.iso_format()
 
     return { "otn": case_info.get("otn"),
              "arrest_officer": case_info.get("arrest_officer"),

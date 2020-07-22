@@ -18,6 +18,10 @@ class Address:
             data["street1"], data["city"], data["state"], data["zipcode"],
             street2=data.get("street2", None))
 
+    def __repr__(self):
+        return "Address('%s', '%s', '%s', '%s', street2='%s')" % (self.street1,
+            self.city, self.state, self.zipcode, self.street2)
+
     def __str__(self):
         """Provide string representation"""
 
@@ -33,6 +37,7 @@ class Petitioner:
     """Someone who wants a record expunged"""
     def __init__(self, name, aliases, dob, ssn, address):
         self.name = name
+
         self.aliases = aliases
         self.dob = dob
         self.ssn = ssn
@@ -40,10 +45,18 @@ class Petitioner:
 
     @staticmethod
     def from_dict(data):
+        alias_str = data.get("aliases", "")
+        aliases = [x.strip() for x in ",".split(alias_str)]
+
         return Petitioner(
-            data["name"], data.get("aliases", []),
+            data["name"], aliases,
             dateparser.parse(data["dob"]),
             data["ssn"], Address.from_dict(data["address"]))
+
+    def __repr__(self):
+        return "Petitioner('%s', '%s', %s, '%s', %s)" % (
+            self.name, str(self.aliases), repr(self.dob), self.ssn,
+            repr(self.address))
 
 
 # Dockets
@@ -128,8 +141,8 @@ class PetitionType(enum.Enum):
 
 class Petition:
     """The petition data"""
-    def __init__(self, date, petition_type, otn, dc, arrest_date,
-                 arrest_officer, disposition, judge):
+    def __init__(self, date, petition_type, otn, dc, arrest_agency, arrest_date,
+                 arrest_officer, judge):
 
         if not isinstance(petition_type, PetitionType):
             raise ValueError("Invalid PetitionType")
@@ -138,9 +151,9 @@ class Petition:
         self.petition_type = petition_type
         self.otn = otn
         self.dc = dc
+        self.arrest_agency = arrest_agency
         self.arrest_date = arrest_date
         self.arrest_officer = arrest_officer
-        self.disposition = disposition
         self.judge = judge
 
     @staticmethod
@@ -149,9 +162,16 @@ class Petition:
         return Petition(
             dateparser.parse(data["date"]),
             PetitionType[data["petition_type"]],
-            data["otn"], data["dc"], dateparser.parse(data["arrest_date"]),
-            data["arrest_officer"], data["disposition"], data["judge"]
+            data["otn"], data["dc"], data["arrest_agency"],
+            dateparser.parse(data["arrest_date"]),
+            data["arrest_officer"], data["judge"]
         )
+
+    def __repr__(self):
+        return "Petition(%s, %s, '%s', '%s', %s, '%s', '%s', '%s')" % (
+            repr(self.date), self.petition_type, self.otn, self.dc,
+            self.arrest_agency, repr(self.arrest_date), self.arrest_officer,
+            self.judge)
 
 
 class Restitution:

@@ -21,14 +21,14 @@ from rest_framework_simplejwt.views import (
     )
 
 urlpatterns = [
-    path('api/v0.1.0/auth/token/',
+    path('api/v0.2.0/auth/token/',
          TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v0.1.0/auth/refresh/',
+    path('api/v0.2.0/auth/refresh/',
          TokenRefreshView.as_view(), name='token_refresh'),
     path('admin/', admin.site.urls),
     path('account/', include('django.contrib.auth.urls')),
-    path('api/v0.1.0/expunger/', include('expunger.urls',
+    path('api/v0.2.0/expunger/', include('expunger.urls',
          namespace='expunger')),
-    path('api/v0.1.0/petition/', include('petition.urls',
+    path('api/v0.2.0/petition/', include('petition.urls',
          namespace='petition'))
 ]

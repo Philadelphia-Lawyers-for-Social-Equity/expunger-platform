@@ -45,9 +45,9 @@ class PetitionFactory(factory.Factory):
     petition_type = factory.fuzzy.FuzzyChoice(PetitionType)
     otn = factory.fuzzy.FuzzyInteger(1000000, 9999999)
     dc = factory.fuzzy.FuzzyInteger(1000000000, 9999999999)
+    arrest_agency = "Philadelphia Pd"
     arrest_date = factory.Faker("date_this_century")
     arrest_officer = factory.Faker("name")
-    disposition = "dismissed"
     judge = factory.Faker("name")
 
 
