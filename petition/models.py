@@ -45,8 +45,12 @@ class Petitioner:
 
     @staticmethod
     def from_dict(data):
-        alias_str = data.get("aliases", "")
-        aliases = [x.strip() for x in ",".split(alias_str)]
+        adata = data.get("aliases", [])
+
+        if type(adata) == str:
+            aliases = [x.strip() for x in ",".split(adata)]
+        else:
+            aliases = adata
 
         return Petitioner(
             data["name"], aliases,
