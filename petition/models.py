@@ -33,6 +33,31 @@ class Address:
             self.street1, self.street2, self.city, self.state, self.zipcode)
 
 
+class Charge:
+    def __init__(self, date, statute, grade, description, disposition):
+        self.date = date
+        self.statute = statute
+        self.grade = grade
+        self.description = description
+        self.disposition = disposition
+
+    def __repr__(self):
+        return "Charge('%s', '%s', '%s' '%s', '%s')" % (
+            repr(self.date), self.statute, self.grade, self.description,
+                 self.disposition)
+
+    @staticmethod
+    def from_dict(data):
+        cdate = data.get("date", None)
+
+        if cdate is not None:
+            cdate = dateparser.parse(cdate)
+
+        return Charge(
+            cdate, data.get("statute", ""), data.get("grade", ""),
+            data.get("description", ""), data.get("disposition", ""))
+
+
 class Petitioner:
     """Someone who wants a record expunged"""
     def __init__(self, name, aliases, dob, ssn, address):
@@ -49,6 +74,8 @@ class Petitioner:
 
         if type(adata) == str:
             aliases = [x.strip() for x in ",".split(adata)]
+        if adata is None:
+            aliases = []
         else:
             aliases = adata
 

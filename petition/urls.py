@@ -6,9 +6,6 @@ from . import views
 app_name = "petition"
 
 urlpatterns = [
-    path("", views.PetitionerFormView.as_view(), name="petitioner_form"),
-    path("petition-form/", views.PetitionFormView.as_view(),
-         name="petition_form"),
     path("parse-docket/", views.DocketParserAPIView.as_view(),
          name="parse-docket"),
     path("generate/", views.PetitionAPIView.as_view(),
