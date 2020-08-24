@@ -114,13 +114,6 @@ class TestRest(Authenticated, TestCase):
                     "disposition": "Nolle Prossed"
                 },
                 {
-                    "description": "SIMPLE ASSAULT",
-                    "statute": "18 § 2701",
-                    "date": "1985-04-29",
-                    "grade": "M2",
-                    "disposition": "Guilty Plea"
-                },
-                {
                     "description": "ROBBERY",
                     "statute": "18 § 3701",
                     "date": "1985-04-29",
