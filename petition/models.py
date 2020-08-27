@@ -19,8 +19,8 @@ class Address:
             street2=data.get("street2", None))
 
     def __repr__(self):
-        return "Address('%s', '%s', '%s', '%s', street2='%s')" % (self.street1,
-            self.city, self.state, self.zipcode, self.street2)
+        return "Address('%s', '%s', '%s', '%s', street2='%s')" % (
+            self.street1, self.city, self.state, self.zipcode, self.street2)
 
     def __str__(self):
         """Provide string representation"""
@@ -44,7 +44,7 @@ class Charge:
     def __repr__(self):
         return "Charge('%s', '%s', '%s' '%s', '%s')" % (
             repr(self.date), self.statute, self.grade, self.description,
-                 self.disposition)
+            self.disposition)
 
     @staticmethod
     def from_dict(data):

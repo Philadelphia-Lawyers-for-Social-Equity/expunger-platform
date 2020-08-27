@@ -122,4 +122,71 @@ class TestRest(Authenticated, TestCase):
                 }
             ]
         )
+
+    def test_post_restitution(self):
+        """Get restitution amounts."""
+        url = reverse("petition:parse-docket")
+        pdf1 = Path(__file__).parent / "data" / "test-01.pdf"
+
+        with pdf1.open("rb") as f:
+            res = self.authenticated_client.post(url, {"docket_file": f})
+
+        self.assertEqual(res.status_code, 200)
+        jsr = res.json()
+
+        self.assertEqual(
+            jsr["restitution"],
+            {
+                "total": 164.5,
+                "paid": 87.5
+            }
+        )
+
+    def test_post_ard(self):
+        """Identify ARD disposition."""
+        url = reverse("petition:parse-docket")
+
+        pdf2 = Path(__file__).parent / "data" / "test-04.pdf"
+
+        with pdf2.open("rb") as f:
+            res = self.authenticated_client.post(url, {"docket_file": f})
+
+        self.assertEqual(res.status_code, 200)
+        jsr = res.json()
+
+        self.assertEqual(
+            jsr["petitioner"],
+            {
+                "name": "Donald Duck",
+                "aliases": None,
+                "dob": "1992-04-27"
+            }
+        )
+
+        self.assertEqual(
+            jsr["petition"],
+            {
+                "arrest_agency": "Philadelphia Pd",
+                "arrest_date": "2020-01-06",
+                "arrest_officer": "Roney, Dorothea S.",
+                "judge": None,
+                "otn": "U 192584-0"
+            }
+        )
+
+        self.assertEqual(jsr["docket"], "MC-51-CR-0000427-2020")
+
+        self.assertEqual(
+            jsr["charges"],
+            [
+                {
+                    "description": "DUI: Gen Imp/Inc of Driving Safely"
+                                   " - 1st Off",
+                    "statute": "75 § 3802",
+                    "date": "2020-01-06",
+                    "grade": None,
+                    "disposition": "ARD - County"
+                }
+            ]
+        )
         self.assertEqual(jsr["restitution"], {"total": None, "paid": None})

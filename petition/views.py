@@ -122,13 +122,33 @@ class DocketParserAPIView(APIView):
 
         if "section_disposition" in parsed:
             for disp in parsed["section_disposition"]:
-                content["charges"].append(disposition_to_charge(disp))
+                if include_charge(disp):
+                    content["charges"].append(disposition_to_charge(disp))
+
+        if "section_financial_information" in parsed:
+            content["restitution"] = {
+                "total": parsed["section_financial_information"]["total"],
+                "paid":
+                    abs(parsed["section_financial_information"]["payments"])
+            }
 
         logger.info("Parsed: %s", content)
         return Response(content)
 
 
 # Helpers
+
+def include_charge(disp):
+    """
+    Produce true if a charge qualifies for expungement.
+    """
+    if "offense_disposition" not in disp:
+        raise ValueError("Charge must include a disposition, got: %s" % disp)
+
+    return disp["offense_disposition"] in [
+        "Nolle Prossed", "ARD - County", "Not Guilty", "Dismissed",
+        "Withdrawn"]
+
 
 def date_string(d):
     try:
